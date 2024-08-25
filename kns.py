@@ -24,7 +24,7 @@ KINDLE_EMAIL = ""
 # Telegram settings
 BOT_TOKEN = ""
 TELEGRAM_ID = ""
-INTERVAL_IN_MINUTES = 10
+INTERVAL_IN_MINUTES = 15
 
 SUPPORTED_FILE_TYPES = {
     'application/pdf': 'pdf',
@@ -118,6 +118,11 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
         file = await document.get_file()
         file_content = await file.download_as_bytearray()
 
+        file_name=document.file_name
+        caption = update.message.caption
+        if caption:
+            file_name = f"{caption}.{SUPPORTED_FILE_TYPES[document.mime_type].lower()}"     
+                
         email_message = EmailMessage()
         email_message['From'] = EMAIL_ACCOUNT
         email_message['To'] = KINDLE_EMAIL
@@ -128,7 +133,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             file_content, 
             maintype=document.mime_type.split('/')[0], 
             subtype=document.mime_type.split('/')[1], 
-            filename=document.file_name
+            filename=file_name
         )
 
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
@@ -136,7 +141,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             server.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
             server.send_message(email_message)
 
-        await update.message.reply_text(f"The file {document.file_name} has been sent successfully.")
+        await update.message.reply_text(f"The file {file_name} has been sent successfully.")
     else:
         await update.message.reply_text("This file type is not supported.")
             

@@ -41,3 +41,9 @@ python kns.py
 3. Get a `.pdf` file in Telegram
 4. ???
 5. PROFIT
+
+
+# Limitations
+- Individual file size should be less than 50 MB (before compression in a ZIP file).
+- Telegram does not ensure consistency of file names
+- Need Zotero integration
